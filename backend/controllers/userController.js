@@ -82,7 +82,7 @@ const userController={
             user.profilePic = profilePic || user.profilePic;
             const updatedUser = await user.save();
             if (!updatedUser) {
-                return res.status(500).json({ message: "Error updating profile" });
+                return res.status(500).send({ message: "Error updating profile" });
             }        
             res.send("User profile saved successfully");
     }),

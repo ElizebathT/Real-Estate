@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
   },
   role: { 
     type: String, 
-    enum: ["vendor", "admin", "customer"], 
+    enum: ["agent", "admin", "customer"], 
     required: true 
   },
   phone: { 
@@ -26,6 +26,12 @@ const UserSchema = new mongoose.Schema({
   address:{ 
       type:  String,
   },
+  wishlist: [
+    { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "Property" 
+    }
+  ],
 }, { timestamps: true });
 
 const User = mongoose.model("User", UserSchema);

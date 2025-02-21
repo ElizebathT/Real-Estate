@@ -1,0 +1,60 @@
+const Agent = require("../models/agentModel");
+const asyncHandler = require("express-async-handler");
+
+const agentController = {
+    // Create Agent
+    createAgent: asyncHandler(async (req, res) => {
+        const { specializations, experience, licenseNumber, bio} = req.body;
+        const existingAgent = await Agent.findOne({ licenseNumber });
+        if (existingAgent) {
+            throw new Error("Agent with this license already exists");
+        }
+        const agent = await Agent.create({
+            ...req.body,
+            profileCompleted: !!(specializations && experience && licenseNumber),
+        });
+        res.status(201).send(agent);
+    }),
+
+    // Get All Agents
+    getAllAgents: asyncHandler(async (req, res) => {
+        const agents = await Agent.find().populate("reviews");
+        res.status(200).send(agents);
+    }),
+
+    // Get Agent by ID
+    getAgentById: asyncHandler(async (req, res) => {
+        const agent = await Agent.findOne({user:req.user.id}).populate("reviews");
+        if (!agent) {
+            throw new Error("Agent not found");
+        }
+        res.status(200).send(agent);
+    }),
+
+    // Update Agent
+    updateAgent: asyncHandler(async (req, res) => {
+        const agent = await Agent.findOne({user:req.user.id});
+        if (!agent) {
+            throw new Error("Agent not found");
+        }
+
+        Object.assign(agent, req.body);
+        agent.profileCompleted = !!(agent.specializations && agent.experience && agent.licenseNumber);
+
+        const updatedAgent = await agent.save();
+        res.status(200).send(updatedAgent);
+    }),
+
+    // Delete Agent
+    deleteAgent: asyncHandler(async (req, res) => {
+        const agent = await Agent.findByOne({user:req.user.id});
+        if (!agent) {
+            res.status(404);
+            throw new Error("Agent not found");
+        }
+        await agent.remove();
+        res.status(200).send({ message: "Agent removed" });
+    }),
+};
+
+module.exports = agentController;
