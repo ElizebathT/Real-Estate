@@ -4,6 +4,9 @@ const asyncHandler = require("express-async-handler");
 const propertyController = {
     createProperty: asyncHandler(async (req, res) => {
         const newProperty = new Property(req.body);
+        newProperty.photos= req.files["photos"] ? req.files["photos"][0].path : null,
+        newProperty.videos= req.files["videos"] ? req.files["videos"][0].path : null
+        
         const encodedAddress = encodeURIComponent(address);
         
         const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}&travelmode=driving`;
