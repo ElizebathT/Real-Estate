@@ -11,6 +11,11 @@ const agentSchema = new mongoose.Schema({
     enum: ['residential', 'commercial', 'rentals'],
     required: true,
   },
+  status: {
+    type: String,
+    enum: ['active', 'not active'],
+    default: 'not active',
+  },
   experience: {
     type: Number,
     required: true,

@@ -3,7 +3,12 @@ const userRoutes = require("./userRouter");
 const wishlistRoutes = require("./wishlistRoutes");
 const propertyRoutes = require("./propertyRouter");
 const reviewRoutes = require("./reviewRouter");
+const paymentRouter = require("./paymentRouter");
 const router=express()
+
+router.use("/payment", paymentRouter);
+
+router.use(express.json())
 
 router.use("/users", userRoutes);
 router.use("/wishlist", wishlistRoutes);

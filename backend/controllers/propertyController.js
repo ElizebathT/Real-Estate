@@ -1,18 +1,33 @@
+const Agent = require("../models/agentModel");
 const Property = require("../models/propertyModel");
 const asyncHandler = require("express-async-handler");
 
 const propertyController = {
     createProperty: asyncHandler(async (req, res) => {
-        const newProperty = new Property(req.body);
-        newProperty.photos= req.files["photos"] ? req.files["photos"][0].path : null,
-        newProperty.videos= req.files["videos"] ? req.files["videos"][0].path : null
-        
-        const encodedAddress = encodeURIComponent(address);
-        
-        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}&travelmode=driving`;
-        
-        const savedProperty = await newProperty.save();
-        res.status(201).send(savedProperty);
+            const agent=await Agent.findOne({user:req.user.id})
+            const agentProperties = await Property.countDocuments({ agentId:agent._id });
+    
+            // Check if the agent has already listed 5 properties
+            if (agentProperties >= 5) {
+                const hasActiveSubscription = await Payment.findOne({ agentId, status: "active" });
+    
+                if (!hasActiveSubscription) {
+                    return res.status(403).json({ 
+                        message: "You have reached the free listing limit. Please subscribe to continue." 
+                    });
+                }
+            }
+    
+            // Create new property
+            const newProperty = new Property({
+                ...req.body,
+                agentId,
+                photos: req.files["photos"] ? req.files["photos"][0].path : null,
+                videos: req.files["videos"] ? req.files["videos"][0].path : null,
+            });
+    
+            const savedProperty = await newProperty.save();
+            res.status(201).send(savedProperty);
     }),
 
     getAllProperties: asyncHandler(async (req, res) => {
