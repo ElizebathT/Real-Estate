@@ -11,20 +11,30 @@ const UserSchema = new mongoose.Schema({
     required: true, 
     unique: true 
   },
+  name:{ 
+    type: String, 
+    required: true,
+  },
   password: { 
     type: String, 
     minLength:[5,"Minimum 5 characters required"]
   },
   role: { 
     type: String, 
-    enum: ["agent", "admin", "customer"], 
+    enum: ["agent", "admin", "customer","owner"], 
     required: true 
   },
   phone: { 
       type: String,
+      default:''
+  },
+  profilePic:{
+    type: String,
+      default:''
   },
   address:{ 
       type:  String,
+      default:''
   },
   wishlist: [
     { 

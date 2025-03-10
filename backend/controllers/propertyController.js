@@ -32,7 +32,7 @@ const propertyController = {
 
     getAllProperties: asyncHandler(async (req, res) => {
         const properties = await Property.find().populate("agentId", "name email");
-        res.status(200).send(properties);
+        res.send(properties);
     }),
 
     updateProperty: asyncHandler(async (req, res) => {

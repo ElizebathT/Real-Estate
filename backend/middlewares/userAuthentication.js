@@ -6,20 +6,23 @@ require("dotenv").config()
 const userAuthentication=async(req,res,next)=>{
     
     
-    const {token} =req.cookies
-    if(!token){
-        throw new Error("User not authenticated")
+    try {
+        const token = req.headers["authorization"].split(" ")[1];
+        if (!token) {
+            throw new Error("User not authenticated");
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        req.user = {
+            email: decoded.email,
+            id: decoded.id
+        };
+        const user = await User.findById(decoded.id);
+        if (user.blocked) {
+            throw new Error("User blocked");
+        }
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: error.message });
     }
-    const decoded=jwt.verify(token,process.env.JWT_SECRET_KEY)
-    req.user={
-        email:decoded.email,
-        id:decoded.id
-    }
-    const user=await User.findById(decoded.id)
-    if(user.blocked)
-    {
-        throw new Error("User blocked")
-    }
-    next()
 }
 module.exports=userAuthentication

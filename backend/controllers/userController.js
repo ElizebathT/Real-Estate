@@ -6,18 +6,23 @@ const User = require("../models/userModel");
 
 const userController={
     register : asyncHandler(async(req,res)=>{        
-      const {username,email,password,role}=req.body
+      const {name,username,email,password,role,address, phone}=req.body
       const userExits=await User.findOne({email})
       if(userExits){
           throw new Error("User already exists")
       }
       const hashed_password=await bcrypt.hash(password,10)
       const userCreated=await User.create({
+          name,
           username,
           email,
           password:hashed_password,
-          role
+          role,
+          address, 
+          phone
       })
+      console.log("hi");
+      
       if(!userCreated){
           throw new Error("User creation failed")
       }
@@ -26,14 +31,8 @@ const userController={
           id:userCreated.id
       }
       const token=jwt.sign(payload,process.env.JWT_SECRET_KEY)
-      res.cookie("token",token,{
-          maxAge:2*24*60*60*1000,
-          http:true,
-          sameSite:"none",
-          secure:false
-      })
-      res.send("User created successfully")
-        }),  
+      res.json({token,role})
+    }),  
   
     login :asyncHandler(async(req,res)=>{
         const {email,password}=req.body
@@ -50,13 +49,9 @@ const userController={
             id:userExist.id
         }
         const token=jwt.sign(payload,process.env.JWT_SECRET_KEY)
-        res.cookie("token",token,{
-            maxAge:2*24*60*60*1000,
-            sameSite:"none",
-            http:true,
-            secure:false
-        })        
-        res.send("Login successful")
+        const role=userExist.role  
+        const name=userExist.name     
+        res.json({ token,role,name });
         }),
 
     logout:asyncHandler(async(req,res)=>{
@@ -65,7 +60,7 @@ const userController={
         }),
 
     profile: asyncHandler(async (req, res) => {
-        const { username, email, password, role, phone, address } = req.body;
+        const { username, name, email, password, role, phone, address } = req.body;
         const userId = req.user.id;         
             const user = await User.findById(userId);
             if (!user) {
@@ -75,11 +70,12 @@ const userController={
                 user.password = await bcrypt.hash(password, 10);
             }
             user.username = username || user.username;
+            user.name = name || user.name;
             user.email = email || user.email;
             user.role = role || user.role;
             user.phone = phone || user.phone;
             user.address = address || user.address;
-            user.profilePic = profilePic || user.profilePic;
+            // user.profilePic = profilePic || user.profilePic;
             const updatedUser = await user.save();
             if (!updatedUser) {
                 return res.status(500).send({ message: "Error updating profile" });
