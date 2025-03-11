@@ -5,7 +5,7 @@ const asyncHandler = require("express-async-handler");
 const wishlistController={
 // Add Property to Wishlist
     addToWishlist : asyncHandler(async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.params;
         const userId=req.user.id
     const user = await User.findById(userId);
     const Property = await Property.findById(id);
@@ -24,7 +24,7 @@ const wishlistController={
 }),
 
     removeFromWishlist : asyncHandler(async (req, res) => {
-    const { id:PropertyId } = req.body;
+    const { id:PropertyId } = req.params;
     const userId=req.user.id
     const user = await User.findById(userId);
 

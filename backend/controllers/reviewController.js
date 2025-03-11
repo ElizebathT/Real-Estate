@@ -2,6 +2,7 @@ const Review = require("../models/reviewModel");
 const Property = require("../models/propertyModel");
 const Agent = require("../models/agentModel");
 const asyncHandler = require("express-async-handler");
+const Notification = require("../models/notificationModel");
 
 const reviewController = {
     addReview: asyncHandler(async (req, res) => {
@@ -36,7 +37,19 @@ const reviewController = {
         });
 
         await review.save();
-
+        const property=await Property.findById(propertyId)
+        if(property){
+        await Notification.create({
+            user: review.agent,
+            message: `📝 Review Added: A new review has been posted for your property, ${property.title}.`,
+        });
+    }
+    if(review.agent){
+        await Notification.create({
+            user: agentId,
+            message: `⭐ New Review: A client has rated you. Check their feedback!`,
+        });
+    }
         // Update average rating for Property or Agent
         if (propertyId) await updateAverageRating(Property, propertyId, "property");
         if (agentId) await updateAverageRating(Agent, agentId, "agent");

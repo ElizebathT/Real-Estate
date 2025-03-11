@@ -8,5 +8,6 @@ propertyRoutes.get("/viewall", userAuthentication,propertyController.getAllPrope
 propertyRoutes.post("/add", userAuthentication,upload.fields([{ name: "photos", maxCount: 1 },{ name: "videos", maxCount: 1 },]),propertyController.createProperty);
 propertyRoutes.get("/search", userAuthentication,propertyController.searchProperties);
 propertyRoutes.put("/edit", userAuthentication,propertyController.updateProperty);
+propertyRoutes.get("/view/:id", userAuthentication,propertyController.showProperty);
 
 module.exports = propertyRoutes;

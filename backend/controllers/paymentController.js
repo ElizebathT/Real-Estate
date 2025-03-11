@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Payment = require("../models/paymentModel");
 const Property = require("../models/propertyModel");
 const Stripe = require("stripe");
+const Notification = require("../models/notificationModel");
 require("dotenv").config();
 
 // const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -114,10 +115,14 @@ const paymentController = {
 
         switch (event.type) {
             case "payment_intent.succeeded":
-                await Payment.findOneAndUpdate(
+                const payment=await Payment.findOneAndUpdate(
                     { transactionId: event.data.object.id },
                     { paymentStatus: "completed" }
                 );
+                await Notification.create({
+                    user: payment.agentId,
+                    message: `🎉 Payment Successful! .`,
+                });
                 return res.status(200).send("💰 Payment succeeded!");
 
             case "checkout.session.completed":

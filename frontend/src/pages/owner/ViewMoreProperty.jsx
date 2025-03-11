@@ -1,8 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import OwnerFooter from "../../components/OwnerFooter";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { showPropertyAPI } from "../../services/propertyService.js";
 
 const ViewMoreProperty = () => {
+  const { id } = useParams();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["show-property", id], // Include ID in the queryKey to refetch when ID changes
+    queryFn: () => showPropertyAPI(id), // Pass ID to API function
+    enabled: !!id, // Ensures the query runs only when ID is available
+  });
+  console.log(data);
+  
   return (
     <div>
         <div className="mt-6"></div>
@@ -15,22 +26,51 @@ const ViewMoreProperty = () => {
 
       {/* Property Details Section */}
       <div className="container mx-auto p-6">
-        <h2 className="text-3xl font-bold mb-4">Modern Family Home</h2>
-        <p className="text-lg text-gray-700 mb-6">
-          A spacious and modern family home located in a quiet and serene neighborhood, perfect for families looking for comfort and convenience.
-        </p>
+  <h2 className="text-3xl font-bold mb-4">{data?.title}</h2>
+  <p className="text-lg text-gray-700 mb-6">
+    {data?.description}
+  </p>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-2xl font-semibold mb-2">Property Details</h3>
-            <p className="text-lg mb-2"><strong>Price:</strong> $500,000</p>
-            <p className="text-lg mb-2"><strong>Bedrooms:</strong> 3</p>
-            <p className="text-lg mb-2"><strong>Bathrooms:</strong> 2</p>
-            <p className="text-lg mb-2"><strong>Area:</strong> 2,500 sq. ft.</p>
-            <p className="text-lg mb-2"><strong>Location:</strong> Springfield, USA</p>
-          </div>
-          
-        </div>
+  <div className="grid md:grid-cols-2 gap-6">
+    <div>
+      <h3 className="text-2xl font-semibold mb-2">Property Details</h3>
+      <p className="text-lg mb-2"><strong>Price:</strong> ${data?.price.toLocaleString()}</p>
+      <p className="text-lg mb-2"><strong>Bedrooms:</strong> {data?.bedrooms}</p>
+      <p className="text-lg mb-2"><strong>Bathrooms:</strong> {data?.bathrooms}</p>
+      <p className="text-lg mb-2"><strong>Area:</strong> {data?.area} sq. ft.</p>
+      <p className="text-lg mb-2">
+        <strong>Location:</strong> {data?.location?.address}, {data?.location?.city}, {data?.location?.zipCode}
+      </p>
+      <p className="text-lg mb-2"><strong>Average Rating:</strong> {data?.averageRating} ⭐</p>
+
+      
+
+      <h3 className="text-xl font-semibold mt-4">Features</h3>
+      <ul className="list-disc pl-5">
+        {data?.features?.map((feature, index) => (
+          <li key={index} className="text-lg">{feature}</li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h3 className="text-2xl font-semibold mb-2">Images</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {data?.photos?.map((photo, index) => (
+          <img key={index} src={photo} alt={`Property ${index + 1}`} className="w-full h-40 object-cover rounded-lg" />
+        ))}
+      </div>
+
+      <h3 className="text-2xl font-semibold mt-4">Video Tour</h3>
+      {data?.videos?.length > 0 && (
+        <video controls className="w-full rounded-lg mt-2">
+          <source src={data.videos[0]} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      )}
+    </div>
+  </div>
+
 
         {/* Action Buttons */}
         <div className="flex justify-between mt-6">

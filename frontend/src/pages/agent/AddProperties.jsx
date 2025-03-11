@@ -22,6 +22,7 @@ const AddProperties = () => {
   // Validation Schema
   const validationSchema = Yup.object({
     propertyType: Yup.string().required("Property Type is required"),
+    rentOrSale: Yup.string().required("Required"),
     price: Yup.number()
       .typeError("Price must be a number")
       .positive("Price must be positive")
@@ -29,7 +30,6 @@ const AddProperties = () => {
     description: Yup.string()
       .min(10, "Description must be at least 10 characters")
       .required("Description is required"),
-    propertyFor: Yup.string().oneOf(["buy", "rent"], "Invalid option").required(),
     bedrooms: Yup.number()
       .min(0, "Minimum 0")
       .max(20, "Maximum 20")
@@ -52,6 +52,7 @@ const AddProperties = () => {
   const formik = useFormik({
     initialValues: {
       propertyType: "home",
+      rentOrSale:"rent",
       price: "",
       description: "",
       propertyFor: "buy",
@@ -87,10 +88,24 @@ const AddProperties = () => {
               <option value="land">Land</option>
               <option value="both">Home & Land</option>
               <option value="flat">Flat</option>
-              <option value="cp">Commercial Property</option>
+              <option value="commercial">Commercial Property</option>
             </select>
             {formik.touched.propertyType && formik.errors.propertyType && (
               <p className="text-red-500">{formik.errors.propertyType}</p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-lg font-semibold mb-2">Rent or Sale</label>
+            <select
+              {...formik.getFieldProps("rentOrSale")}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            >
+              <option value="rent">Rent</option>
+              <option value="sale">Sale</option>
+            </select>
+            {formik.touched.rentOrSale && formik.errors.rentOrSale && (
+              <p className="text-red-500">{formik.errors.rentOrSale}</p>
             )}
           </div>
 

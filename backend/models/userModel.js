@@ -15,6 +15,12 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true,
   },
+  middleName:{ 
+    type: String, 
+  },
+  lastName:{ 
+    type: String, 
+  },
   password: { 
     type: String, 
     minLength:[5,"Minimum 5 characters required"]
@@ -36,6 +42,14 @@ const UserSchema = new mongoose.Schema({
       type:  String,
       default:''
   },
+  experience:{ 
+    type:  Number,
+    default:0
+},
+licence:{ 
+  type:  String,
+  default:0
+},
   wishlist: [
     { 
       type: mongoose.Schema.Types.ObjectId, 

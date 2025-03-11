@@ -11,7 +11,7 @@ const propertySchema = new mongoose.Schema({
     },
     propertyType: { 
         type: String, 
-        enum: ['house', 'apartment', 'commercial'], 
+        enum: ['home','land', 'both', 'flat', 'commercial'], 
         required: true 
     },
     location: {
@@ -48,7 +48,7 @@ const propertySchema = new mongoose.Schema({
         type: Number, 
         required: true 
     },
-    squareFootage: { 
+    area: { 
         type: Number, 
         required: true 
     },
@@ -64,10 +64,8 @@ const propertySchema = new mongoose.Schema({
     videos: [
         { type: String }
     ], // Optional: for virtual tours
-    mapCoordinates: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true }
-    },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
     isAvailable: { 
         type: Boolean, 
         default: true 

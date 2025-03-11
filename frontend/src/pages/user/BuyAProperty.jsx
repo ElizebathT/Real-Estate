@@ -1,15 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/solid";
+import { useQuery } from "@tanstack/react-query";
+import { viewPropertyAPI } from "../../services/propertyService.js";
+import { addToWishlistAPI, removeFromWishlistAPI } from "../../services/wishlistService.js";
+import axios from "axios";
+import { BASE_URL } from "../../../../../Personal Finance Tracker/frontend/src/utils/urls.js";
+import { getUserData } from "../../utils/storageHandler.js";
 
 export default function BuyAProperty() {
   const [wishlist, setWishlist] = useState([]);
+  const { data: properties } = useQuery({
+    queryKey: ["view-property"],
+    queryFn: viewPropertyAPI,
+  });
 
-  const toggleWishlist = (propertyId) => {
-    setWishlist((prev) =>
-      prev.includes(propertyId) ? prev.filter((id) => id !== propertyId) : [...prev, propertyId]
-    );
+  // Fetch user's wishlist when component mounts
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const userToken = getUserData();
+        const response = await axios.get(`${BASE_URL}/wishlist/view`, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+        setWishlist(response.data.wishlist || []);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+
+    fetchWishlist();
+  }, []);
+
+  // Toggle wishlist function
+  const toggleWishlist = async (propertyId) => {
+    try {
+      if (wishlist.includes(propertyId)) {
+        const response = await removeFromWishlistAPI(propertyId);
+        console.log("Removed from wishlist:", response);
+        setWishlist((prev) => prev.filter((id) => id !== propertyId));
+      } else {
+        const response = await addToWishlistAPI(propertyId);
+        console.log("Added to wishlist:", response);
+        setWishlist((prev) => [...prev, propertyId]);
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+    }
   };
+  
 
   return (
     <div className="container mx-auto p-4">
@@ -22,25 +63,23 @@ export default function BuyAProperty() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {[1, 2, 3, 4, 5, 6].map((id) => (
-          <div key={id} className="border rounded-lg shadow p-4 relative flex flex-col">
-            <div className="w-full h-48 bg-gray-300 rounded"></div>
+        {properties?.map((property) => (
+          <div key={property._id} className="border rounded-lg shadow p-4 relative flex flex-col">
+            <img src={property?.photos?.[0]} alt={`Property `} className="w-full h-40 object-cover rounded-lg" />
             <div className="mt-2 flex-1">
-              <h2 className="text-lg font-semibold">Property Title</h2>
-              <p className="text-gray-500">Location</p>
-              <p className="font-bold">$Price</p>
-              <Link to={'/user/buypropertydetails'} className="block text-blue-500 mt-2 font-semibold">
+              <h2 className="text-lg font-semibold">{property.title}</h2>
+              <p className="text-gray-500">{property.area} sq ft</p>
+              <p className="font-bold">${property.price}</p>
+              <Link to={`/user/buypropertydetails/${property._id}`} className="block text-blue-500 mt-2 font-semibold">
                 View More
               </Link>
             </div>
-
-            {/* Wishlist Icon at Bottom Right */}
-            <div 
+            <div
               className="absolute bottom-2 right-2 cursor-pointer p-2 bg-white rounded-full shadow-lg"
-              onClick={() => toggleWishlist(id)}
+              onClick={() => toggleWishlist(property._id)}
             >
               <HeartIcon
-                className={`w-6 h-6 ${wishlist.includes(id) ? "text-red-500" : "text-gray-500"}`}
+                className={`w-6 h-6 ${wishlist.includes(property._id) ? "text-red-500" : "text-gray-500"}`}
               />
             </div>
           </div>

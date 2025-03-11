@@ -1,26 +1,15 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import AgentFooter from "../../components/AgentFooter";
+import { useQuery } from "@tanstack/react-query";
+import { viewPropertyAPI } from "../../services/propertyService.js";
 
 const ViewProperties = () => {
-  const [properties, setProperties] = useState([
-    {
-      id: 1,
-      propertyType: "Home",
-      price: "$250,000",
-      bedrooms: 3,
-      bathrooms: 2,
-      image: "property1.jpg",
-    },
-    {
-      id: 2,
-      propertyType: "Commercial Property",
-      price: "$1,000,000",
-      bedrooms: 0,
-      bathrooms: 2,
-      image: "property2.jpg",
-    },
-  ]);
+  const { data:properties } = useQuery({
+    queryKey: ['view-property'],
+    queryFn: viewPropertyAPI,
+  });
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -34,20 +23,23 @@ const ViewProperties = () => {
               <tr className="bg-gray-200 text-gray-700">
                 <th className="px-6 py-3 text-left border-b">Property Type</th>
                 <th className="px-6 py-3 text-left border-b">Price</th>
-                <th className="px-6 py-3 text-left border-b">Bedrooms</th>
-                <th className="px-6 py-3 text-left border-b">Bathrooms</th>
+                <th className="px-6 py-3 text-left border-b">Area(Sq Ft)</th>
                 <th className="px-6 py-3 text-left border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {properties.map((property) => (
+            {Array.isArray(properties) && properties.map((property) => (
                 <tr key={property.id} className="border-b hover:bg-gray-100">
-                  <td className="px-6 py-3">{property.propertyType}</td>
-                  <td className="px-6 py-3">{property.price}</td>
-                  <td className="px-6 py-3">{property.bedrooms}</td>
-                  <td className="px-6 py-3">{property.bathrooms}</td>
                   <td className="px-6 py-3">
-                    <Link to={`/agent/viewmoreproperties`}>
+                      {property.propertyType === "both"
+                        ? "Land and Building"
+                        : property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1)}
+                    </td>
+
+                  <td className="px-6 py-3">{property.price}</td>
+                  <td className="px-6 py-3">{property.area}</td>
+                  <td className="px-6 py-3">
+                    <Link to={`/agent/viewmoreproperties/${property._id}`}>
                       <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                         View More
                       </button>

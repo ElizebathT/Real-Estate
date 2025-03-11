@@ -6,7 +6,7 @@ const User = require("../models/userModel");
 
 const userController={
     register : asyncHandler(async(req,res)=>{        
-      const {name,username,email,password,role,address, phone}=req.body
+      const {name,middleName,lastName,username,email,password,role,address, phone}=req.body
       const userExits=await User.findOne({email})
       if(userExits){
           throw new Error("User already exists")
@@ -14,6 +14,8 @@ const userController={
       const hashed_password=await bcrypt.hash(password,10)
       const userCreated=await User.create({
           name,
+          middleName,
+          lastName,
           username,
           email,
           password:hashed_password,
@@ -21,7 +23,6 @@ const userController={
           address, 
           phone
       })
-      console.log("hi");
       
       if(!userCreated){
           throw new Error("User creation failed")

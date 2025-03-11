@@ -1,29 +1,57 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
+import { registerAPI } from "../../services/userService";
+import { signup } from "../../redux/userSlice";
 
-const validationSchema = Yup.object({
-  name: Yup.string().required("Full Name is required"),
-  email: Yup.string().email("Invalid email format").required("Email is required"),
-  username: Yup.string().required("Username is required"),
-  password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), null], "Passwords must match")
-    .required("Confirm password is required"),
-});
+
 
 const SignUpOwner = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Full Name is required"),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    username: Yup.string().required("Username is required"),
+    password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm password is required"),
+  });
+
+  const { mutateAsync } = useMutation({
+    mutationFn: registerAPI,
+    mutationKey: ["register-user"],
+  });
+
   const formik = useFormik({
     initialValues: {
       name: "",
       email: "",
+      role: "owner",
       username: "",
       password: "",
       confirmPassword: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Form Submitted", values);
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const data = await mutateAsync(values);
+        if (data?.token) {
+          localStorage.setItem("userToken", data.token);
+          dispatch(signup(data));
+          resetForm();
+          navigate("/ownerhome");
+        } else {
+          alert("Invalid response from server");
+        }
+      } catch (error) {
+        console.error("Signup Error:", error);
+      }
     },
   });
 

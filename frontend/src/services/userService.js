@@ -31,3 +31,4 @@ export const editProfileAPI= async(data)=>{
     })
     return response.data
 }
+

@@ -1,5 +1,6 @@
 const Agent = require("../models/agentModel");
-const Property = require("../models/propertyModel");
+const Property = require("../models/propertyModel")
+const Payment = require("../models/paymentModel");
 const asyncHandler = require("express-async-handler");
 
 const propertyController = {
@@ -9,7 +10,7 @@ const propertyController = {
     
             // Check if the agent has already listed 5 properties
             if (agentProperties >= 5) {
-                const hasActiveSubscription = await Payment.findOne({ agentId, status: "active" });
+                const hasActiveSubscription = await Payment.findOne({ agentId:agent._id, status: "active" });
     
                 if (!hasActiveSubscription) {
                     return res.status(403).json({ 
@@ -21,7 +22,7 @@ const propertyController = {
             // Create new property
             const newProperty = new Property({
                 ...req.body,
-                agentId,
+                agentId:req.user.id,
                 photos: req.files["photos"] ? req.files["photos"][0].path : null,
                 videos: req.files["videos"] ? req.files["videos"][0].path : null,
             });
@@ -33,6 +34,12 @@ const propertyController = {
     getAllProperties: asyncHandler(async (req, res) => {
         const properties = await Property.find().populate("agentId", "name email");
         res.send(properties);
+    }),
+
+    showProperty: asyncHandler(async (req, res) => {
+        const {id}=req.params
+        const property = await Property.findById(id)
+        res.send(property);
     }),
 
     updateProperty: asyncHandler(async (req, res) => {

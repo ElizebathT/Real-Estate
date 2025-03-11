@@ -1,67 +1,133 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { editProfileAPI, getProfileAPI } from "../../services/userService";
+import { useFormik } from "formik";
 
 const AgentProfile = () => {
-  const [name, setName] = useState("Agent User");
-  const [email, setEmail] = useState("agent@example.com");
-  const [phone, setPhone] = useState("9876543210");
-  const [license, setLicense] = useState("AGT-123456");
-  const [experience, setExperience] = useState("years");
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState("/default-avatar.png");
+  const [preview, setPreview] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  
+  const { data, refetch } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfileAPI,
+  });
 
-  // Sample user reviews
-  const reviews = [
-    { id: 1, user: "John Doe", rating: 5, comment: "Excellent service!" },
-    { id: 2, user: "Sarah Lee", rating: 4, comment: "Very professional and responsive." },
-    { id: 3, user: "Mark Smith", rating: 3, comment: "Good but can improve on communication." },
-  ];
+  const { mutateAsync } = useMutation({
+    mutationFn: editProfileAPI,
+    mutationKey: ["edit-profile"],
+  });
 
+  const user = data?.user || {};
+
+  const formik = useFormik({
+    initialValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      license: user?.license || "",
+      experience: user?.experience || "",
+    },
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      try {
+        const formData = new FormData();
+        Object.entries(values).forEach(([key, value]) => formData.append(key, value));
+
+        if (selectedImage) {
+          formData.append("profileImage", selectedImage);
+        }
+
+        await mutateAsync(formData);
+        refetch();
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error updating profile", error);
+      }
+    },
+  });
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const reviews = data?.reviews || []; 
   return (
     <div className="min-h-screen bg-gray-100 pt-16">
       {/* Profile Section */}
       <div className="max-w-lg mx-auto mt-16 bg-white p-6 shadow-lg rounded-lg">
         <h2 className="text-2xl font-semibold text-center mb-4">Agent Profile</h2>
 
-        <div className="flex flex-col items-center">
+        {/* <div className="flex flex-col items-center">
           <img
-            src={preview}
+            src={preview || user?.profileImage || "/default-avatar.png"}
             alt="Profile"
             className="w-32 h-32 rounded-full object-cover border-2 border-gray-300"
           />
           <label className="mt-3 bg-gray-200 px-4 py-2 rounded cursor-pointer text-sm hover:bg-gray-300">
             Change Image
-            <input type="file" className="hidden" accept="image/*" />
+            <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
           </label>
-        </div>
+        </div> */}
 
-        <div className="mt-4">
+        <form onSubmit={formik.handleSubmit} className="mt-4">
           <label className="block text-gray-600">Name</label>
-          <input type="text" className="w-full border px-3 py-2 rounded focus:outline-none focus:ring" value={name} />
-        </div>
+          <input
+            type="text"
+            name="name"
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+          />
 
-        <div className="mt-4">
-          <label className="block text-gray-600">Email</label>
-          <input type="email" className="w-full border px-3 py-2 rounded focus:outline-none focus:ring" value={email} />
-        </div>
+          <label className="block text-gray-600 mt-4">Email</label>
+          <input
+            type="email"
+            name="email"
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+          />
 
-        <div className="mt-4">
-          <label className="block text-gray-600">Phone</label>
-          <input type="text" className="w-full border px-3 py-2 rounded focus:outline-none focus:ring" value={phone} />
-        </div>
+          <label className="block text-gray-600 mt-4">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+            value={formik.values.phone}
+            onChange={formik.handleChange}
+          />
 
-        <div className="mt-4">
-          <label className="block text-gray-600">Agent License Number</label>
-          <input type="text" className="w-full border px-3 py-2 rounded focus:outline-none focus:ring" value={license} />
-        </div>
+          <label className="block text-gray-600 mt-4">Agent License Number</label>
+          <input
+            type="text"
+            name="license"
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+            value={formik.values.license}
+            onChange={formik.handleChange}
+          />
 
-        <div className="mt-4">
-          <label className="block text-gray-600">Experience</label>
-          <input type="text" className="w-full border px-3 py-2 rounded focus:outline-none focus:ring" value={experience} />
-        </div>
+          <label className="block text-gray-600 mt-4">Experience</label>
+          <input
+            type="text"
+            name="experience"
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+            value={formik.values.experience}
+            onChange={formik.handleChange}
+          />
 
-        <div className="mt-6 text-center">
-          <button className="bg-sky-950 text-white px-4 py-2 rounded hover:bg-blue-700">Save Changes</button>
-        </div>
+          <div className="mt-6 text-center">
+            <button
+              type="submit"
+              className="bg-sky-950 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* User Reviews Section */}

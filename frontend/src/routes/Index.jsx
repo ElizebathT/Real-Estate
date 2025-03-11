@@ -83,7 +83,7 @@ function Layout() {
         <Route path="/user/userprofile" element={<UserProfile />} />
         <Route path="/user/buyaproperty" element={<BuyAProperty />} />
         <Route path="/user/rentaproperty" element={<RentAProperty />} />
-        <Route path="/user/buypropertydetails" element={<PropertyDetails />} />
+        <Route path="/user/buypropertydetails/:id" element={<PropertyDetails />} />
         <Route path="/user/rentpropertydetails" element={<RentPropertyDetails />} />
         <Route path="/user/chat" element={<Chat />} />
 
@@ -96,7 +96,7 @@ function Layout() {
         <Route path="/owner/deleteproperty" element={<DeleteProperty />} />
         <Route path="/owner/notifications" element={<Notifications />} />
         <Route path="/owner/viewproperty" element={<ViewProperty />} />
-        <Route path="/owner/viewmoreproperty" element={<ViewMoreProperty />} />
+        <Route path="/agent/viewmoreproperties/:id" element={<ViewMoreProperty />} />
         <Route path="/owner/ownerpayment" element={<OwnerPayment />} />
 
         {/* agent */}
