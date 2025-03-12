@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/solid";
+import { useQuery } from "@tanstack/react-query";
+import { viewPropertyAPI } from "../../services/propertyService";
 
 export default function RentAProperty() {
+  
   const [wishlist, setWishlist] = useState([]);
 
   const toggleWishlist = (propertyId) => {
@@ -10,7 +13,13 @@ export default function RentAProperty() {
       prev.includes(propertyId) ? prev.filter((id) => id !== propertyId) : [...prev, propertyId]
     );
   };
-
+  const { data } = useQuery({
+    queryKey: ["view-property"],
+    queryFn: viewPropertyAPI,
+  });
+  
+  const properties = data?.filter(property => property.rentOrSale === "rent") || [];
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Rent Properties</h1>
@@ -22,25 +31,23 @@ export default function RentAProperty() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {[7, 8, 9, 10, 11, 12].map((id) => (
-          <div key={id} className="border rounded-lg shadow p-4 relative flex flex-col">
-            <div className="w-full h-48 bg-gray-300 rounded"></div>
+      {properties?.map((property) => (
+          <div key={property._id} className="border rounded-lg shadow p-4 relative flex flex-col">
+            <img src={property?.photos?.[0]} alt={`Property `} className="w-full h-40 object-cover rounded-lg" />
             <div className="mt-2 flex-1">
-              <h2 className="text-lg font-semibold">Property Title</h2>
-              <p className="text-gray-500">Location</p>
-              <p className="font-bold">$Rent</p>
-              <Link to={'/user/rentpropertydetails'} className="block text-blue-500 mt-2 font-semibold">
+              <h2 className="text-lg font-semibold">{property.title}</h2>
+              <p className="text-gray-500">{property.area} sq ft</p>
+              <p className="font-bold">${property.price}</p>
+              <Link to={`/user/rentpropertydetails/${property._id}`} className="block text-blue-500 mt-2 font-semibold">
                 View More
               </Link>
             </div>
-
-            {/* Wishlist Icon at Bottom Right */}
-            <div 
+            <div
               className="absolute bottom-2 right-2 cursor-pointer p-2 bg-white rounded-full shadow-lg"
-              onClick={() => toggleWishlist(id)}
+              onClick={() => toggleWishlist(property._id)}
             >
               <HeartIcon
-                className={`w-6 h-6 ${wishlist.includes(id) ? "text-red-500" : "text-gray-500"}`}
+                className={`w-6 h-6 ${wishlist.includes(property._id) ? "text-red-500" : "text-gray-500"}`}
               />
             </div>
           </div>

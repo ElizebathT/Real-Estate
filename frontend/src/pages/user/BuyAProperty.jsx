@@ -2,53 +2,25 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { useQuery } from "@tanstack/react-query";
-import { viewPropertyAPI } from "../../services/propertyService.js";
 import { addToWishlistAPI, removeFromWishlistAPI } from "../../services/wishlistService.js";
 import axios from "axios";
 import { BASE_URL } from "../../../../../Personal Finance Tracker/frontend/src/utils/urls.js";
 import { getUserData } from "../../utils/storageHandler.js";
+import { viewPropertyAPI } from "../../services/propertyService";
 
 export default function BuyAProperty() {
   const [wishlist, setWishlist] = useState([]);
-  const { data: properties } = useQuery({
+  const { data } = useQuery({
     queryKey: ["view-property"],
     queryFn: viewPropertyAPI,
   });
-
-  // Fetch user's wishlist when component mounts
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        const userToken = getUserData();
-        const response = await axios.get(`${BASE_URL}/wishlist/view`, {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-        setWishlist(response.data.wishlist || []);
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-      }
-    };
-
-    fetchWishlist();
-  }, []);
-
-  // Toggle wishlist function
-  const toggleWishlist = async (propertyId) => {
-    try {
-      if (wishlist.includes(propertyId)) {
-        const response = await removeFromWishlistAPI(propertyId);
-        console.log("Removed from wishlist:", response);
-        setWishlist((prev) => prev.filter((id) => id !== propertyId));
-      } else {
-        const response = await addToWishlistAPI(propertyId);
-        console.log("Added to wishlist:", response);
-        setWishlist((prev) => [...prev, propertyId]);
-      }
-    } catch (error) {
-      console.error("Error updating wishlist:", error);
-    }
+  
+  const properties = data?.filter(property => property.rentOrSale === "sale") || [];
+  
+  const toggleWishlist = (propertyId) => {
+    setWishlist((prev) =>
+      prev.includes(propertyId) ? prev.filter((id) => id !== propertyId) : [...prev, propertyId]
+    );
   };
   
 

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { showPropertyAPI } from "../../services/propertyService.js";
 import { addToWishlistAPI } from "../../services/wishlistService.js";
+import { showPropertyAPI } from "../../services/propertyService";
 
 export default function PropertyDetails() {
   const { id } = useParams();
@@ -89,7 +89,7 @@ export default function PropertyDetails() {
             >
               Call
             </button>
-            <Link to="/user/chat">
+            <Link to={`/user/chat/${data.agentId}`}>
               <button className="bg-blue-500 text-white px-6 py-2 rounded w-full">
                 Chat
               </button>

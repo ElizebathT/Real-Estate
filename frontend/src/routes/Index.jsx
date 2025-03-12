@@ -84,8 +84,8 @@ function Layout() {
         <Route path="/user/buyaproperty" element={<BuyAProperty />} />
         <Route path="/user/rentaproperty" element={<RentAProperty />} />
         <Route path="/user/buypropertydetails/:id" element={<PropertyDetails />} />
-        <Route path="/user/rentpropertydetails" element={<RentPropertyDetails />} />
-        <Route path="/user/chat" element={<Chat />} />
+        <Route path="/user/rentpropertydetails/:id" element={<RentPropertyDetails />} />
+        <Route path="/user/chat/:seller/:buyer" element={<Chat />} />
 
         {/* owner */}
         

@@ -29,7 +29,19 @@ export default function SignIn() {
       mutateAsync(values).then((data)=>{
         dispatch(login(data))
         localStorage.setItem(`userData`,data.token)
-        navigate('/userhome')        
+        console.log(data);        
+        if(data.role==="customer"){
+          navigate("/userhome");
+        }
+        else if(data.role==="agent"){
+          navigate("/agenthome");
+        }
+        else if(data.role==="owner"){
+          navigate("/ownerhome");
+        }
+        else{
+          navigate("/dashboard");
+        }        
       })
     },
   });

@@ -4,6 +4,7 @@ const wishlistRoutes = require("./wishlistRoutes");
 const propertyRoutes = require("./propertyRouter");
 const reviewRoutes = require("./reviewRouter");
 const paymentRouter = require("./paymentRouter");
+const chatRoutes = require("./chatRouter");
 const router=express()
 
 router.use("/payment", paymentRouter);
@@ -15,5 +16,6 @@ router.use("/wishlist", wishlistRoutes);
 router.use("/property", propertyRoutes);
 router.use("/review", reviewRoutes);
 router.use("/agent", propertyRoutes);
+router.use("/messages", chatRoutes);
 
 module.exports=router

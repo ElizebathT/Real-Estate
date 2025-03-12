@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import AgentFooter from "../../components/AgentFooter";
 import { useQuery } from "@tanstack/react-query";
-import { viewPropertyAPI } from "../../services/propertyService.js";
+import { viewPropertyAPI } from "../../services/propertyService";
 
 const ViewProperties = () => {
   const { data:properties } = useQuery({

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import OwnerFooter from "../../components/OwnerFooter";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { showPropertyAPI } from "../../services/propertyService.js";
+import { showPropertyAPI } from "../../services/propertyService";
 
 const ViewMoreProperty = () => {
   const { id } = useParams();

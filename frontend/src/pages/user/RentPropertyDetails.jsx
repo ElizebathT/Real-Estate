@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { showPropertyAPI } from "../../services/propertyService";
 
 export default function RentPropertyDetails() {
   const { id } = useParams();
@@ -26,30 +28,40 @@ export default function RentPropertyDetails() {
   const submitReview = () => {
     console.log("Rating:", rating, "Comment:", comment);
   };
-
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["show-property", id], 
+    queryFn: () => showPropertyAPI(id), 
+    enabled: !!id, 
+  });
   return (
     <div className="container mx-auto p-4">
       {/* Banner Image */}
-      <div className="w-full h-64 bg-gray-300 rounded-lg mb-4 flex items-center justify-center text-gray-600">
-        Property Image Banner
+      <div className="grid grid-cols-2 gap-2">
+        {data?.photos?.map((photo, index) => (
+          <img key={index} src={photo} alt="Property" className="w-full h-70 object-cover rounded-lg" />
+        ))}
       </div>
 
       {/* Property Info */}
-      <h1 className="text-3xl font-bold">Property Title {id}</h1>
+      <h1 className="text-3xl font-bold">{data?.title}</h1>
       <p className="mt-4 text-gray-700">
-        This property is a perfect place for families looking for comfort and convenience. It is
-        located in a prime area with all necessary amenities nearby.
-      </p>
-      <p className="text-gray-500 text-lg">Location: City Name</p>
-      <p className="text-xl font-bold mt-2">$Price</p>
+      {data?.description}</p>
+      {data?.lat && data?.lng && (
+  <iframe
+    className="w-1/2 h-64 rounded-lg shadow-md mt-4"
+    src={`https://www.openstreetmap.org/export/embed.html?bbox=${data.lng - 0.01},${data.lat - 0.01},${data.lng + 0.01},${data.lat + 0.01}&layer=mapnik&marker=${data.lat},${data.lng}`}
+    allowFullScreen
+    loading="lazy"
+  ></iframe>
+)}<p className="text-xl font-bold mt-2">${data?.price}</p>
 
       <div className="mt-4">
         <h2 className="text-xl font-semibold">Property Details</h2>
         <ul className="list-disc list-inside mt-2 text-gray-700">
-          <li>Bedrooms: 3</li>
-          <li>Kitchen: 1</li>
-          <li>Area: 1500 sq.ft</li>
-          <li>Spacious Living Room</li>
+          <li>Bedrooms: {data?.bedrooms}</li>
+          <li>Kitchen:{data?.kitchen || "N/A"}</li>
+          <li>Area: {data?.area} sq.ft</li>
+          <li>{data?.features?.join(", ")}</li>
         </ul>
       </div>
 
@@ -86,8 +98,8 @@ export default function RentPropertyDetails() {
             >
               Call
             </button>
-            <Link to="/user/chat">
-              <button className="bg-blue-500 text-white px-6 py-2 rounded w-full">
+            <Link to={`/user/chat/67cfb65cc4beab1f387a3cb0/67cebe83d939372f171313f8`} >
+            <button className="bg-blue-500 text-white px-6 py-2 rounded w-full">
                 Chat
               </button>
             </Link>
