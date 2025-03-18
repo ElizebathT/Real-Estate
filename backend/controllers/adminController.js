@@ -1,13 +1,15 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
-const Transaction = require("../models/transactionModel");
 const Property = require("../models/propertyModel");
+const Agent = require("../models/agentModel");
 
 const adminController={
     getDashboardData :asyncHandler(async (req, res) => {
         const users = await User.find();
+        const agents = await Agent.find();
         const properties=await Property.find()
         const dashboard = {
+          agents,
             users,
             properties
           };
@@ -15,16 +17,25 @@ const adminController={
         res.send(dashboard);        
       }),
       
-    verifyUser:asyncHandler(async (req, res) => {
-      
-        const user = await User.findById(req.params.id);
-        
-        if(!user){
-            throw new Error('User not found')
+      verifyUser: asyncHandler(async (req, res) => {
+        const { id } = req.body;
+    
+        const user = await User.findById(id);
+    
+        if (!user) {
+            res.status(404);
+            throw new Error("User not found");
         }
-        user.verified=true
-        const userSaved=await user.save()
-        res.send("User verified")
+    
+        if (user.verified) {
+            return res.status(400).json({ message: "User is already verified" });
+        }
+    
+        user.verified = true;
+        await user.save();
+    
+        res.status(200).json({ message: "User verified successfully" });
     }),
+    
 }
 module.exports=adminController
