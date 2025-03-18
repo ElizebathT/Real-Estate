@@ -64,15 +64,32 @@ export default function Chat() {
       </h2>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
-        {messages.map((msg, index) => (
-          <div key={index} className={`flex ${msg.senderId === buyer ? "justify-end" : "justify-start"}`}>
-            <div className={`px-4 py-2 rounded-lg max-w-[70%] ${msg.senderId === buyer ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"}`}>
-              {msg.message}
+      <div className="flex-1 overflow-y-auto p-2 space-y-4">
+        {messages.map((msg, index) => {
+          const msgDate = new Date(msg.timestamp).toLocaleDateString();
+          const prevMsgDate = index > 0 ? new Date(messages[index - 1].timestamp).toLocaleDateString() : null;
+
+          return (
+            <div key={index}>
+              {/* Show Date Separator */}
+              {msgDate !== prevMsgDate && (
+                <div className="text-center text-gray-500 text-sm my-2">{msgDate}</div>
+              )}
+
+              {/* Message */}
+              <div className={`flex ${msg.senderId === buyer ? "justify-end" : "justify-start"}`}>
+                <div className={`px-4 py-2 rounded-lg max-w-[70%] ${msg.senderId === buyer ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"}`}>
+                  <p>{msg.message}</p>
+                  <p className="text-xs text-gray-300 mt-1 text-right">
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
 
       {/* Input Field */}
       <div className="flex gap-2 mt-2 border-t p-2">

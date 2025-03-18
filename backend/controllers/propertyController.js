@@ -5,31 +5,50 @@ const asyncHandler = require("express-async-handler");
 
 const propertyController = {
     createProperty: asyncHandler(async (req, res) => {
-            const agent=await Agent.findOne({user:req.user.id})
-            const agentProperties = await Property.countDocuments({ agentId:agent._id });
+        const agent = await Agent.findOne({ user: req.user.id });
+        if (!agent) {
+            return res.status(404).json({ message: "Agent not found." });
+        }
     
-            // Check if the agent has already listed 5 properties
-            if (agentProperties >= 5) {
-                const hasActiveSubscription = await Payment.findOne({ agentId:agent._id, status: "active" });
+        const agentProperties = await Property.countDocuments({ agentId: agent._id });
     
-                if (!hasActiveSubscription) {
-                    return res.status(403).json({ 
-                        message: "You have reached the free listing limit. Please subscribe to continue." 
-                    });
-                }
+        // Fetch active subscription
+        const activeSubscription = await Payment.findOne({ agentId: agent._id, status: "active" });
+    
+        let propertyLimit = 5; // Default free tier limit
+    
+        if (activeSubscription) {
+            switch (activeSubscription.plan) {
+                case "basic":
+                    propertyLimit = 10;
+                    break;
+                case "premium":
+                    propertyLimit = 15;
+                    break;
+                case "vip":
+                    propertyLimit = 5;
             }
+        }
     
-            // Create new property
-            const newProperty = new Property({
-                ...req.body,
-                agentId:req.user.id,
-                photos: req.files["photos"] ? req.files["photos"][0].path : null,
-                videos: req.files["videos"] ? req.files["videos"][0].path : null,
+        // Check property listing limit
+        if (agentProperties >= propertyLimit) {
+            return res.status(403).json({
+                message: `You have reached your property limit (${propertyLimit}). Please upgrade your subscription to list more properties.`,
             });
+        }
     
-            const savedProperty = await newProperty.save();
-            res.status(201).send(savedProperty);
+        // Create new property
+        const newProperty = new Property({
+            ...req.body,
+            agentId: req.user.id,
+            photos: req.files["photos"] ? req.files["photos"][0].path : null,
+            videos: req.files["videos"] ? req.files["videos"][0].path : null,
+        });
+    
+        const savedProperty = await newProperty.save();
+        res.status(201).json(savedProperty);
     }),
+    
 
     getAllProperties: asyncHandler(async (req, res) => {
         const properties = await Property.find().populate("agentId", "name email");

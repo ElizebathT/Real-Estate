@@ -1,6 +1,5 @@
 import axios from'axios'
 axios.defaults.withCredentials = true
-import { BASE_URL } from '../../../../Personal Finance Tracker/frontend/src/utils/urls';
 import { getUserData } from '../utils/storageHandler';
 
 export const viewPropertyAPI=async()=>{

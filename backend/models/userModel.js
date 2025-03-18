@@ -56,6 +56,9 @@ licence:{
       ref: "Property" 
     }
   ],
+  verified:{
+    default:false
+  }
 }, { timestamps: true });
 
 const User = mongoose.model("User", UserSchema);
