@@ -1,10 +1,9 @@
 const express = require("express");
 const userAuthentication = require("../middlewares/userAuthentication");
-const agentController = require("../controllers/agentController");
 const Message = require("../models/chatModel");
 const chatRoutes = express.Router();
 
-chatRoutes.get("/:roomId", async (req, res) => {
+chatRoutes.get("/:roomId", userAuthentication,async (req, res) => {
   try {
     const { roomId } = req.params;
     const messages = await Message.find({ roomId }).sort({ timestamp: 1 });
@@ -15,7 +14,7 @@ chatRoutes.get("/:roomId", async (req, res) => {
 });
   
   // Save a new message
-chatRoutes.post("/", async (req, res) => {
+chatRoutes.post("/", userAuthentication,async (req, res) => {
   try {
     const { roomId, senderId, receiverId, message, timestamp } = req.body;
 
